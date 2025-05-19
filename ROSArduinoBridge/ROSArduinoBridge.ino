@@ -49,18 +49,9 @@
 //#undef USE_BASE     // Disable the base controller code
 
 /* Define the motor controller and encoder library you are using */
-#ifdef USE_BASE
-   /* The Pololu VNH5019 dual motor driver shield */
-   //#define POLOLU_VNH5019
-
-   /* The Pololu MC33926 dual motor driver shield */
-   //#define POLOLU_MC33926
-
-   /* The RoboGaia encoder shield */
-   //#define ROBOGAIA
-   
+#ifdef USE_BASE   
    /* Encoders directly attached to Arduino board */
-   #define ARDUINO_ENC_COUNTER
+   //define ARDUINO_ENC_COUNTER (removed the arduino encoder counter)
 
    /* L298 Motor driver*/
    #define L298_MOTOR_DRIVER
