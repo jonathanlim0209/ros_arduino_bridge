@@ -89,7 +89,7 @@
   #include "motor_driver.h"
 
   /* Encoder driver function definitions */
-  #include "encoder_driver.h"
+  //#include "encoder_driver.h"
 
   /* PID parameters and functions */
   #include "diff_controller.h"
@@ -192,7 +192,7 @@ int runCommand() {
     Serial.print(" ");
     Serial.println(readEncoder(RIGHT));
     break;
-   case RESET_ENCODERS:
+  case RESET_ENCODERS:
     resetEncoders();
     resetPID();
     Serial.println("OK");
@@ -242,41 +242,11 @@ void setup() {
 
 // Initialize the motor controller if used */
 #ifdef USE_BASE
-  #ifdef ARDUINO_ENC_COUNTER
-    //set as inputs
-    DDRD &= ~(1<<LEFT_ENC_PIN_A);
-    DDRD &= ~(1<<LEFT_ENC_PIN_B);
-    DDRC &= ~(1<<RIGHT_ENC_PIN_A);
-    DDRC &= ~(1<<RIGHT_ENC_PIN_B);
-    
-    //enable pull up resistors
-    PORTD |= (1<<LEFT_ENC_PIN_A);
-    PORTD |= (1<<LEFT_ENC_PIN_B);
-    PORTC |= (1<<RIGHT_ENC_PIN_A);
-    PORTC |= (1<<RIGHT_ENC_PIN_B);
-    
-    // tell pin change mask to listen to left encoder pins
-    PCMSK2 |= (1 << LEFT_ENC_PIN_A)|(1 << LEFT_ENC_PIN_B);
-    // tell pin change mask to listen to right encoder pins
-    PCMSK1 |= (1 << RIGHT_ENC_PIN_A)|(1 << RIGHT_ENC_PIN_B);
-    
-    // enable PCINT1 and PCINT2 interrupt in the general interrupt mask
-    PCICR |= (1 << PCIE1) | (1 << PCIE2);
-  #endif
   initMotorController();
   resetPID();
 #endif
 
-/* Attach servos if used */
-  #ifdef USE_SERVOS
-    int i;
-    for (i = 0; i < N_SERVOS; i++) {
-      servos[i].initServo(
-          servoPins[i],
-          stepDelay[i],
-          servoInitPosition[i]);
-    }
-  #endif
+
 }
 
 /* Enter the main loop.  Read and parse input from the serial port
@@ -346,4 +316,3 @@ void loop() {
   }
 #endif
 }
-
