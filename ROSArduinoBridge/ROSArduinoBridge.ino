@@ -50,15 +50,9 @@
 
 /* Define the motor controller and encoder library you are using */
 #ifdef USE_BASE   
-   /* Encoders directly attached to Arduino board */
-   //define ARDUINO_ENC_COUNTER (removed the arduino encoder counter)
-
    /* L298 Motor driver*/
    #define L298_MOTOR_DRIVER
 #endif
-
-//#define USE_SERVOS  // Enable use of PWM servos as defined in servos.h
-#undef USE_SERVOS     // Disable use of PWM servos
 
 /* Serial port baud rate */
 #define BAUDRATE     57600
@@ -78,21 +72,11 @@
 /* Sensor functions */
 #include "sensors.h"
 
-/* Include servo support if required */
-#ifdef USE_SERVOS
-   #include <Servo.h>
-   #include "servos.h"
-#endif
 
 #ifdef USE_BASE
   /* Motor driver function definitions */
   #include "motor_driver.h"
 
-  /* Encoder driver function definitions */
-  //#include "encoder_driver.h"
-
-  /* PID parameters and functions */
-  #include "diff_controller.h"
 
   /* Run the PID loop at 30 times per second */
   #define PID_RATE           30     // Hz
@@ -176,59 +160,17 @@ int runCommand() {
   case PING:
     Serial.println(Ping(arg1));
     break;
-#ifdef USE_SERVOS
-  case SERVO_WRITE:
-    servos[arg1].setTargetPosition(arg2);
-    Serial.println("OK");
-    break;
-  case SERVO_READ:
-    Serial.println(servos[arg1].getServo().read());
-    break;
-#endif
+
     
 #ifdef USE_BASE
-  case READ_ENCODERS:
-    Serial.print(readEncoder(LEFT));
-    Serial.print(" ");
-    Serial.println(readEncoder(RIGHT));
-    break;
-  case RESET_ENCODERS:
-    resetEncoders();
-    resetPID();
-    Serial.println("OK");
-    break;
-  case MOTOR_SPEEDS:
-    /* Reset the auto stop timer */
-    lastMotorCommand = millis();
-    if (arg1 == 0 && arg2 == 0) {
-      setMotorSpeeds(0, 0);
-      resetPID();
-      moving = 0;
-    }
-    else moving = 1;
-    leftPID.TargetTicksPerFrame = arg1;
-    rightPID.TargetTicksPerFrame = arg2;
-    Serial.println("OK"); 
-    break;
+    
   case MOTOR_RAW_PWM:
     /* Reset the auto stop timer */
     lastMotorCommand = millis();
-    resetPID();
-    moving = 0; // Sneaky way to temporarily disable the PID
     setMotorSpeeds(arg1, arg2);
     Serial.println("OK"); 
     break;
-  case UPDATE_PID:
-    while ((str = strtok_r(p, ":", &p)) != '\0') {
-       pid_args[i] = atoi(str);
-       i++;
-    }
-    Kp = pid_args[0];
-    Kd = pid_args[1];
-    Ki = pid_args[2];
-    Ko = pid_args[3];
-    Serial.println("OK");
-    break;
+  
 #endif
   default:
     Serial.println("Invalid Command");
@@ -243,7 +185,6 @@ void setup() {
 // Initialize the motor controller if used */
 #ifdef USE_BASE
   initMotorController();
-  resetPID();
 #endif
 
 
@@ -294,19 +235,7 @@ void loop() {
     }
   }
   
-// If we are using base control, run a PID calculation at the appropriate intervals
-#ifdef USE_BASE
-  if (millis() > nextPID) {
-    updatePID();
-    nextPID += PID_INTERVAL;
-  }
-  
-  // Check to see if we have exceeded the auto-stop interval
-  if ((millis() - lastMotorCommand) > AUTO_STOP_INTERVAL) {;
-    setMotorSpeeds(0, 0);
-    moving = 0;
-  }
-#endif
+
 
 // Sweep servos
 #ifdef USE_SERVOS

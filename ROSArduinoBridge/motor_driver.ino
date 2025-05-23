@@ -101,7 +101,6 @@
       }
     }
 
-    else if (i==)
   }
   
   void setMotorSpeeds(int leftSpeed, int rightSpeed) {
